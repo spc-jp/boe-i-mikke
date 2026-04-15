@@ -686,6 +686,141 @@ body.light input[type="date"].field-input {
   margin-top: 6px;
 }
 
+
+/* 言語切替タブ */
+.lang-tabs {
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 20px;
+  background: rgba(201,168,76,0.04);
+}
+.lang-tabs-label {
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 1.5px;
+  margin-bottom: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.lang-tabs-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.lang-tab {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 14px;
+  border: 1.5px solid var(--border);
+  background: var(--dark2);
+  color: var(--text-muted);
+  border-radius: 20px;
+  font-size: 12px;
+  font-family: 'Noto Sans JP', sans-serif;
+  cursor: pointer;
+  transition: all 0.18s;
+  white-space: nowrap;
+}
+.lang-tab span { font-size: 11px; }
+.lang-tab:hover {
+  border-color: var(--gold-dark);
+  color: var(--text);
+  background: rgba(201,168,76,0.07);
+}
+.lang-tab.active {
+  border-color: var(--gold);
+  background: rgba(201,168,76,0.15);
+  color: var(--gold-light);
+  box-shadow: 0 0 12px rgba(201,168,76,0.15);
+}
+
+
+/* ───── タブナビ ───── */
+.tab-nav {
+  background: linear-gradient(135deg, #0D0D0D, #1A1A1A);
+  border-bottom: 2px solid var(--gold-dark);
+  padding: 0 20px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+body.light .tab-nav { background: linear-gradient(135deg, #1A1A1A, #2A2A2A); }
+.tab-nav-inner {
+  max-width: 680px;
+  margin: 0 auto;
+  display: flex;
+  gap: 4px;
+}
+.tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 24px;
+  border: none;
+  background: transparent;
+  color: #666;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+.tab-btn:hover { color: var(--gold-light); }
+.tab-btn.active {
+  color: var(--gold-light);
+  border-bottom-color: var(--gold);
+}
+.tab-icon { font-size: 16px; }
+.tab-text { font-size: 13px; }
+
+/* ───── 書類タイプ選択 ───── */
+.doc-type-group {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.btn-doctype {
+  flex: 1;
+  min-width: 130px;
+  padding: 16px 12px;
+  border: 1.5px solid var(--border);
+  background: var(--dark2);
+  color: var(--text-muted);
+  border-radius: 10px;
+  font-family: 'Noto Sans JP', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.btn-doctype:hover { border-color: var(--gold-dark); color: var(--text); }
+.btn-doctype.active {
+  border-color: var(--gold);
+  background: rgba(201,168,76,0.12);
+  color: var(--gold-light);
+  box-shadow: 0 0 16px rgba(201,168,76,0.12);
+}
+.doctype-icon { font-size: 26px; }
+.doctype-name { font-size: 12px; font-weight: 700; }
+.doctype-desc { font-size: 9px; color: var(--text-muted); letter-spacing: 1px; }
+.btn-doctype.active .doctype-desc { color: var(--gold-dark); }
+
+/* select */
+select.field-input {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23888' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  cursor: pointer;
+}
+
 </style>
 </head>
 <body>
@@ -853,7 +988,22 @@ body.light input[type="date"].field-input {
 <div class="toast" id="toast"></div>
 
 <!-- ───── メインコンテンツ ───── -->
-<main>
+
+<!-- ───── タブナビ ───── -->
+<div class="tab-nav">
+  <div class="tab-nav-inner">
+    <button class="tab-btn active" id="tab-mail" onclick="switchTab('mail')">
+      <span class="tab-icon">✉️</span>
+      <span class="tab-text">メール生成</span>
+    </button>
+    <button class="tab-btn" id="tab-docs" onclick="switchTab('docs')">
+      <span class="tab-icon">📄</span>
+      <span class="tab-text">書類生成</span>
+    </button>
+  </div>
+</div>
+
+<main id="panel-mail">
 
   <div class="alert">
     💡 国・シーンを選んで入力するだけで、そのままコピーして送れるメール文が完成します
@@ -967,12 +1117,251 @@ body.light input[type="date"].field-input {
       <div class="output-lang-badge" id="outputLangBadge">生成済み</div>
       <button class="btn-copy" id="btnCopy" onclick="copyText()">コピーする</button>
     </div>
+    <!-- 言語切替タブ -->
+    <div class="lang-tabs" id="langTabs">
+      <div class="lang-tabs-label">🌐 他の言語でも確認</div>
+      <div class="lang-tabs-row">
+        <button class="lang-tab" id="lt-china"    onclick="switchLang('china')"   >🇨🇳<span>中国</span></button>
+        <button class="lang-tab" id="lt-taiwan"   onclick="switchLang('taiwan')"  >🇹🇼<span>台湾</span></button>
+        <button class="lang-tab" id="lt-english"  onclick="switchLang('english')" >🌐<span>英語</span></button>
+        <button class="lang-tab" id="lt-korea"    onclick="switchLang('korea')"   >🇰🇷<span>韓国</span></button>
+        <button class="lang-tab" id="lt-thailand" onclick="switchLang('thailand')">🇹🇭<span>タイ</span></button>
+      </div>
+    </div>
     <div class="output-body">
       <div class="output-text" id="outputText"></div>
     </div>
   </div>
 
+
+<!-- ───── 書類生成パネル ───── -->
+<div id="panel-docs" style="display:none;">
+<main>
+
+  <div class="alert">
+    📄 書類の種類を選んで入力するだけで、各国語の書類文章が自動生成されます
+  </div>
+
+  <!-- STEP 1：書類選択 -->
+  <div class="step-label">STEP 1 &nbsp; 書類の種類を選んでください</div>
+  <div class="section">
+    <div class="doc-type-group">
+      <button class="btn-doctype active" id="dt-packing" onclick="selectDocType('packing', this)">
+        <span class="doctype-icon">📦</span>
+        <span class="doctype-name">パッキングリスト</span>
+        <span class="doctype-desc">Packing List</span>
+      </button>
+      <button class="btn-doctype" id="dt-schedule" onclick="selectDocType('schedule', this)">
+        <span class="doctype-icon">📅</span>
+        <span class="doctype-name">出荷スケジュール</span>
+        <span class="doctype-desc">Shipment Schedule</span>
+      </button>
+      <button class="btn-doctype" id="dt-recipe" onclick="selectDocType('recipe', this)">
+        <span class="doctype-icon">📋</span>
+        <span class="doctype-name">取扱インストラクション</span>
+        <span class="doctype-desc">Handling Instruction</span>
+      </button>
+      <button class="btn-doctype" id="dt-shopping" onclick="selectDocType('shopping', this)">
+        <span class="doctype-icon">🛒</span>
+        <span class="doctype-name">ショッピング手順</span>
+        <span class="doctype-desc">Shopping Instruction</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- STEP 2：言語選択 -->
+  <div class="step-label">STEP 2 &nbsp; 送り先の言語を選んでください</div>
+  <div class="section">
+    <div class="btn-group">
+      <button class="btn-select" id="dsel-china"    onclick="selectDocLang('china',this)"><span class="flag">🇨🇳</span>中国<span class="lang-tag">简体字</span></button>
+      <button class="btn-select" id="dsel-taiwan"   onclick="selectDocLang('taiwan',this)"><span class="flag">🇹🇼</span>台湾<span class="lang-tag">繁體字</span></button>
+      <button class="btn-select" id="dsel-english"  onclick="selectDocLang('english',this)"><span class="flag">🌐</span>英語<span class="lang-tag">English</span></button>
+      <button class="btn-select" id="dsel-korea"    onclick="selectDocLang('korea',this)"><span class="flag">🇰🇷</span>韓国<span class="lang-tag">한국어</span></button>
+      <button class="btn-select" id="dsel-thailand" onclick="selectDocLang('thailand',this)"><span class="flag">🇹🇭</span>タイ<span class="lang-tag">ภาษาไทย</span></button>
+    </div>
+  </div>
+
+  <!-- STEP 3：入力フォーム（書類別に切替） -->
+  <div class="step-label">STEP 3 &nbsp; 必要事項を入力してください</div>
+
+  <!-- パッキングリスト入力 -->
+  <div class="section doc-form" id="form-packing">
+    <div class="input-group">
+      <div class="input-row">
+        <div class="field-wrap">
+          <div class="field-label">荷受人 / Consignee<span>取引先名</span></div>
+          <input class="field-input" id="pk-consignee" type="text" placeholder="例：上海○○貿易有限公司">
+        </div>
+        <div class="field-wrap">
+          <div class="field-label">仕向地 / Destination</div>
+          <input class="field-input" id="pk-dest" type="text" placeholder="例：Shanghai, China">
+        </div>
+      </div>
+      <div class="input-row">
+        <div class="field-wrap">
+          <div class="field-label">B/L番号</div>
+          <input class="field-input" id="pk-bl" type="text" placeholder="例：TMNG-2025-0520">
+        </div>
+        <div class="field-wrap">
+          <div class="field-label">発行日</div>
+          <input class="field-input" id="pk-date" type="date">
+        </div>
+      </div>
+      <div class="field-label" style="margin-top:4px;">商品リスト<span>最大5件</span></div>
+      <div id="pk-products"></div>
+      <button class="btn-add-product" onclick="addPkProduct()" id="btnAddPk" style="margin-top:4px;">＋ 商品を追加</button>
+    </div>
+  </div>
+
+  <!-- 出荷スケジュール入力 -->
+  <div class="section doc-form" id="form-schedule" style="display:none;">
+    <div class="input-group">
+      <div class="input-row">
+        <div class="field-wrap">
+          <div class="field-label">取引先名 / Customer</div>
+          <input class="field-input" id="sc-customer" type="text" placeholder="例：台湾○○股份有限公司">
+        </div>
+        <div class="field-wrap">
+          <div class="field-label">担当者名</div>
+          <input class="field-input" id="sc-contact" type="text" placeholder="例：陳様">
+        </div>
+      </div>
+      <div class="field-wrap">
+        <div class="field-label">商品名</div>
+        <input class="field-input" id="sc-product" type="text" placeholder="例：AHMAD TEA アールグレイ 100TB">
+      </div>
+      <div class="input-row">
+        <div class="field-wrap">
+          <div class="field-label">出荷予定日</div>
+          <input class="field-input" id="sc-shipdate" type="date">
+        </div>
+        <div class="field-wrap">
+          <div class="field-label">到着予定日</div>
+          <input class="field-input" id="sc-arrdate" type="date">
+        </div>
+      </div>
+      <div class="input-row">
+        <div class="field-wrap">
+          <div class="field-label">輸送手段</div>
+          <select class="field-input" id="sc-transport">
+            <option value="">選択してください</option>
+            <option value="海上輸送 / Sea Freight">海上輸送</option>
+            <option value="航空輸送 / Air Freight">航空輸送</option>
+            <option value="陸上輸送 / Land Transport">陸上輸送</option>
+          </select>
+        </div>
+        <div class="field-wrap">
+          <div class="field-label">数量</div>
+          <input class="field-input" id="sc-qty" type="text" placeholder="例：300ケース">
+        </div>
+      </div>
+      <div class="field-wrap">
+        <div class="field-label">特記事項（任意）</div>
+        <input class="field-input" id="sc-note" type="text" placeholder="例：冷蔵保管要・取扱注意">
+      </div>
+    </div>
+  </div>
+
+  <!-- 取扱インストラクション入力 -->
+  <div class="section doc-form" id="form-recipe" style="display:none;">
+    <div class="input-group">
+      <div class="field-wrap">
+        <div class="field-label">商品名<span>例：Manuka Health MGO250+ 250g</span></div>
+        <input class="field-input" id="rc-product" type="text" placeholder="商品名を入力">
+      </div>
+      <div class="input-row">
+        <div class="field-wrap">
+          <div class="field-label">保管温度</div>
+          <input class="field-input" id="rc-temp" type="text" placeholder="例：直射日光を避け常温保管">
+        </div>
+        <div class="field-wrap">
+          <div class="field-label">賞味期限</div>
+          <input class="field-input" id="rc-expiry" type="text" placeholder="例：製造日より2年">
+        </div>
+      </div>
+      <div class="field-wrap">
+        <div class="field-label">取扱注意事項<span>日本語で自由に入力</span></div>
+        <input class="field-input" id="rc-caution" type="text" placeholder="例：開封後は密封して冷暗所に保管してください">
+      </div>
+      <div class="field-wrap">
+        <div class="field-label">おすすめの使い方・レシピ（任意）</div>
+        <input class="field-input" id="rc-recipe" type="text" placeholder="例：ヨーグルトにかけて、トーストに塗って">
+      </div>
+      <div class="field-wrap">
+        <div class="field-label">顧客への説明ポイント（任意）</div>
+        <input class="field-input" id="rc-point" type="text" placeholder="例：抗菌作用・天然由来・ニュージーランド産">
+      </div>
+    </div>
+  </div>
+
+  <!-- ショッピングインストラクション入力 -->
+  <div class="section doc-form" id="form-shopping" style="display:none;">
+    <div class="input-group">
+      <div class="input-row">
+        <div class="field-wrap">
+          <div class="field-label">取引先名 / Buyer</div>
+          <input class="field-input" id="sh-buyer" type="text" placeholder="例：韓国○○株式会社">
+        </div>
+        <div class="field-wrap">
+          <div class="field-label">担当者名</div>
+          <input class="field-input" id="sh-contact" type="text" placeholder="例：Park様">
+        </div>
+      </div>
+      <div class="input-row">
+        <div class="field-wrap">
+          <div class="field-label">支払条件</div>
+          <select class="field-input" id="sh-payment">
+            <option value="">選択してください</option>
+            <option value="T/T前払い / T/T in advance">T/T 前払い</option>
+            <option value="L/C（信用状）/ Letter of Credit">L/C（信用状）</option>
+            <option value="D/P（書類引渡し）/ Documents against Payment">D/P</option>
+            <option value="掛け払い / Open Account">掛け払い</option>
+          </select>
+        </div>
+        <div class="field-wrap">
+          <div class="field-label">発注締切日</div>
+          <input class="field-input" id="sh-deadline" type="date">
+        </div>
+      </div>
+      <div class="field-wrap">
+        <div class="field-label">発注商品（複数可）<span>商品名と数量を入力</span></div>
+        <input class="field-input" id="sh-products" type="text" placeholder="例：AHMAD TEA 300cs、Manuka Health 150cs">
+      </div>
+      <div class="field-wrap">
+        <div class="field-label">最小発注数・注意事項（任意）</div>
+        <input class="field-input" id="sh-moq" type="text" placeholder="例：最小発注数100ケース単位、混載可">
+      </div>
+    </div>
+  </div>
+
+  <!-- 生成ボタン -->
+  <button class="btn-generate" onclick="generateDoc()">✦ 書類文章を生成する ✦</button>
+
+  <!-- 出力エリア -->
+  <div class="output-section" id="docOutputSection">
+    <div class="output-header">
+      <div class="output-lang-badge" id="docOutputLangBadge">生成済み</div>
+      <button class="btn-copy" id="btnDocCopy" onclick="copyDocText()">コピーする</button>
+    </div>
+    <!-- 言語切替タブ -->
+    <div class="lang-tabs" id="docLangTabs">
+      <div class="lang-tabs-label">🌐 他の言語でも確認</div>
+      <div class="lang-tabs-row">
+        <button class="lang-tab" id="dlt-china"    onclick="switchDocLang('china')"   >🇨🇳<span>中国</span></button>
+        <button class="lang-tab" id="dlt-taiwan"   onclick="switchDocLang('taiwan')"  >🇹🇼<span>台湾</span></button>
+        <button class="lang-tab" id="dlt-english"  onclick="switchDocLang('english')" >🌐<span>英語</span></button>
+        <button class="lang-tab" id="dlt-korea"    onclick="switchDocLang('korea')"   >🇰🇷<span>韓国</span></button>
+        <button class="lang-tab" id="dlt-thailand" onclick="switchDocLang('thailand')">🇹🇭<span>タイ</span></button>
+      </div>
+    </div>
+    <div class="output-body">
+      <div class="output-text" id="docOutputText"></div>
+    </div>
+  </div>
+
 </main>
+</div>
+
 
 <footer>
   <span>貿易みっけ</span> — Powered by Smile Plus Consulting<br>
@@ -1207,15 +1596,50 @@ function generate() {
   const text = generateEmail(selectedCountry, selectedScene, data);
   if (!text) { showToast('この組み合わせは準備中です'); return; }
 
+  // データを保存（言語切替で再利用）
+  lastGenerateData = data;
+
   document.getElementById('outputText').textContent = text;
   document.getElementById('outputLangBadge').textContent = getLangBadge(selectedCountry);
   document.getElementById('outputSection').classList.add('visible');
   document.getElementById('btnCopy').textContent = 'コピーする';
   document.getElementById('btnCopy').classList.remove('copied');
 
+  // 言語タブをアクティブ化
+  activateLangTab(selectedCountry);
+
   setTimeout(() => {
     document.getElementById('outputSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, 100);
+}
+
+
+// 言語切替（生成後）
+let lastGenerateData = null;
+let currentOutputLang = '';
+
+function switchLang(country) {
+  if (!lastGenerateData) return;
+  const text = generateEmail(country, selectedScene, lastGenerateData);
+  if (!text) { showToast('この言語は準備中です'); return; }
+
+  // タブのアクティブ切替
+  document.querySelectorAll('.lang-tab').forEach(t => t.classList.remove('active'));
+  const tab = document.getElementById('lt-' + country);
+  if (tab) tab.classList.add('active');
+
+  currentOutputLang = country;
+  document.getElementById('outputText').textContent = text;
+  document.getElementById('outputLangBadge').textContent = getLangBadge(country);
+  document.getElementById('btnCopy').textContent = 'コピーする';
+  document.getElementById('btnCopy').classList.remove('copied');
+}
+
+function activateLangTab(country) {
+  document.querySelectorAll('.lang-tab').forEach(t => t.classList.remove('active'));
+  const tab = document.getElementById('lt-' + country);
+  if (tab) tab.classList.add('active');
+  currentOutputLang = country;
 }
 
 function copyText() {
@@ -1229,6 +1653,344 @@ function copyText() {
   });
 }
 </script>
-<script>initProductList();</script>
+
+// ─── タブ切替 ───
+function switchTab(tab) {
+  document.getElementById('panel-mail').style.display = tab === 'mail' ? '' : 'none';
+  document.getElementById('panel-docs').style.display = tab === 'docs' ? '' : 'none';
+  document.getElementById('tab-mail').classList.toggle('active', tab === 'mail');
+  document.getElementById('tab-docs').classList.toggle('active', tab === 'docs');
+}
+
+// ─── 書類タイプ選択 ───
+let selectedDocType = 'packing';
+let selectedDocLang = '';
+let lastDocData = null;
+
+function selectDocType(type, el) {
+  document.querySelectorAll('.btn-doctype').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  selectedDocType = type;
+  document.querySelectorAll('.doc-form').forEach(f => f.style.display = 'none');
+  document.getElementById('form-' + type).style.display = '';
+  document.getElementById('docOutputSection').classList.remove('visible');
+}
+
+function selectDocLang(lang, el) {
+  document.querySelectorAll('[id^="dsel-"]').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  selectedDocLang = lang;
+}
+
+// パッキングリスト商品行
+let pkRowCount = 0;
+function initPkProducts() {
+  addPkProduct();
+}
+function addPkProduct() {
+  if (pkRowCount >= 5) { showToast('⚠ 最大5件まで'); return; }
+  pkRowCount++;
+  const list = document.getElementById('pk-products');
+  const row = document.createElement('div');
+  row.className = 'product-row';
+  row.id = 'pkr-' + pkRowCount;
+  row.innerHTML = `
+    <div class="product-num">${pkRowCount}</div>
+    <input class="product-input" type="text" placeholder="商品名" data-field="name">
+    <input class="qty-input" type="text" placeholder="数量" data-field="qty">
+    ${pkRowCount > 1 ? `<button class="btn-remove-row" onclick="removePkRow('pkr-${pkRowCount}')">✕</button>` : '<div style="width:24px"></div>'}
+  `;
+  list.appendChild(row);
+  if (pkRowCount >= 5) document.getElementById('btnAddPk').disabled = true;
+}
+function removePkRow(id) {
+  document.getElementById(id)?.remove();
+  pkRowCount--;
+  document.querySelectorAll('#pk-products .product-row').forEach((r,i) => {
+    r.querySelector('.product-num').textContent = i+1;
+  });
+  document.getElementById('btnAddPk').disabled = false;
+}
+
+function getPkProducts() {
+  const rows = document.querySelectorAll('#pk-products .product-row');
+  return Array.from(rows).map(r => ({
+    name: r.querySelector('[data-field="name"]').value.trim(),
+    qty:  r.querySelector('[data-field="qty"]').value.trim()
+  })).filter(p => p.name);
+}
+
+// 日付フォーマット
+function fmtDate(str) {
+  if (!str) return '（日付未入力）';
+  const d = new Date(str);
+  return `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;
+}
+function fmtDateEn(str) {
+  if (!str) return '(TBD)';
+  const d = new Date(str);
+  return d.toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'});
+}
+
+// ─── 書類テンプレート生成 ───
+function generateDocText(type, lang, data) {
+  const langMap = {
+    china:   { shipper:'发货人', consignee:'收货人', dest:'目的地', bl:'提单号', date:'日期', product:'品名', qty:'数量', total:'合计', remarks:'备注', company:'富永贸易株式会社 贸易部' },
+    taiwan:  { shipper:'發貨人', consignee:'收貨人', dest:'目的地', bl:'提單號', date:'日期', product:'品名', qty:'數量', total:'合計', remarks:'備註', company:'富永貿易株式会社 貿易部' },
+    english: { shipper:'Shipper', consignee:'Consignee', dest:'Destination', bl:'B/L No.', date:'Date', product:'Product', qty:'Quantity', total:'Total', remarks:'Remarks', company:'Tominaga Boeki Co., Ltd. — International Trade Division' },
+    korea:   { shipper:'발송인', consignee:'수하인', dest:'목적지', bl:'B/L 번호', date:'날짜', product:'상품명', qty:'수량', total:'합계', remarks:'비고', company:'도미나가 보에키 주식회사 무역부' },
+    thailand:{ shipper:'ผู้ส่งสินค้า', consignee:'ผู้รับสินค้า', dest:'ปลายทาง', bl:'เลขที่ B/L', date:'วันที่', product:'ชื่อสินค้า', qty:'จำนวน', total:'รวม', remarks:'หมายเหตุ', company:'บริษัท โทมินากะ โบเอกิ จำกัด' },
+  };
+  const L = langMap[lang];
+  if (!L) return null;
+
+  if (type === 'packing') {
+    const prods = data.pkProds.map((p,i) =>
+      `  ${i+1}. ${p.name}　${L.qty}：${p.qty || '—'}`).join('
+');
+    const titles = {
+      china:'装箱单 / PACKING LIST', taiwan:'裝箱單 / PACKING LIST',
+      english:'PACKING LIST', korea:'포장 명세서 / PACKING LIST',
+      thailand:'บัญชีการบรรจุ / PACKING LIST'
+    };
+    return `${titles[lang]}
+${'─'.repeat(40)}
+${L.shipper}　：富永貿易株式会社
+${L.consignee}　：${data.consignee || '（未入力）'}
+${L.dest}　：${data.dest || '（未入力）'}
+${L.bl}　：${data.bl || '（未入力）'}
+${L.date}　：${lang==='english' ? fmtDateEn(data.date) : fmtDate(data.date)}
+${'─'.repeat(40)}
+【${L.product} / ${L.qty}】
+${prods}
+${'─'.repeat(40)}
+${L.remarks}：
+${'─'.repeat(40)}
+${L.company}`;
+  }
+
+  if (type === 'schedule') {
+    const titles = {
+      china:'出货时间表 / SHIPMENT SCHEDULE', taiwan:'出貨時間表 / SHIPMENT SCHEDULE',
+      english:'SHIPMENT SCHEDULE', korea:'출하 일정표 / SHIPMENT SCHEDULE',
+      thailand:'ตารางการจัดส่ง / SHIPMENT SCHEDULE'
+    };
+    const labels = {
+      china:  ['客户','商品','数量','预计发货日期','预计到达日期','运输方式','备注'],
+      taiwan: ['客戶','商品','數量','預計出貨日期','預計到達日期','運輸方式','備註'],
+      english:['Customer','Product','Quantity','Est. Shipment Date','Est. Arrival Date','Transport','Remarks'],
+      korea:  ['고객사','상품','수량','출하 예정일','도착 예정일','운송 방법','비고'],
+      thailand:['ลูกค้า','สินค้า','จำนวน','วันที่คาดจะส่ง','วันที่คาดจะถึง','วิธีขนส่ง','หมายเหตุ'],
+    };
+    const lb = labels[lang];
+    const d1 = lang==='english' ? fmtDateEn(data.shipdate) : fmtDate(data.shipdate);
+    const d2 = lang==='english' ? fmtDateEn(data.arrdate)  : fmtDate(data.arrdate);
+    return `${titles[lang]}
+${'─'.repeat(40)}
+${lb[0]}　：${data.customer || '（未入力）'}　${data.contact ? '/ ' + data.contact : ''}
+${lb[1]}　：${data.product || '（未入力）'}
+${lb[2]}　：${data.qty || '（未入力）'}
+${lb[3]}　：${d1}
+${lb[4]}　：${d2}
+${lb[5]}　：${data.transport || '（未入力）'}
+${lb[6]}　：${data.note || '—'}
+${'─'.repeat(40)}
+${L.company}`;
+  }
+
+  if (type === 'recipe') {
+    const titles = {
+      china:'产品使用说明书', taiwan:'產品使用說明書',
+      english:'PRODUCT HANDLING & RECIPE INSTRUCTION',
+      korea:'제품 취급 설명서', thailand:'คำแนะนำการใช้สินค้า'
+    };
+    const labels = {
+      china:  ['产品名称','保存温度','保质期','注意事项','推荐用法','产品特点'],
+      taiwan: ['產品名稱','保存溫度','保存期限','注意事項','推薦用法','產品特點'],
+      english:['Product Name','Storage Temp.','Best Before','Handling Notes','Suggested Use','Key Features'],
+      korea:  ['제품명','보관 온도','유통 기한','취급 주의','추천 사용법','제품 특징'],
+      thailand:['ชื่อสินค้า','อุณหภูมิจัดเก็บ','อายุการเก็บ','ข้อควรระวัง','วิธีใช้ที่แนะนำ','คุณสมบัติเด่น'],
+    };
+    const lb = labels[lang];
+    return `${titles[lang]}
+${'─'.repeat(40)}
+${lb[0]}　：${data.product || '（未入力）'}
+${lb[1]}　：${data.temp || '—'}
+${lb[2]}　：${data.expiry || '—'}
+${'─'.repeat(40)}
+【${lb[3]}】
+${data.caution || '—'}
+${'─'.repeat(40)}
+【${lb[4]}】
+${data.recipe || '—'}
+${'─'.repeat(40)}
+【${lb[5]}】
+${data.point || '—'}
+${'─'.repeat(40)}
+${L.company}`;
+  }
+
+  if (type === 'shopping') {
+    const titles = {
+      china:'订购说明 / SHOPPING INSTRUCTION', taiwan:'訂購說明 / SHOPPING INSTRUCTION',
+      english:'SHOPPING INSTRUCTION / ORDER GUIDELINE',
+      korea:'주문 안내 / SHOPPING INSTRUCTION',
+      thailand:'คำแนะนำการสั่งซื้อ / SHOPPING INSTRUCTION'
+    };
+    const labels = {
+      china:  ['买家','负责人','支付条件','订单截止日','订购商品','最小起订量'],
+      taiwan: ['買家','負責人','付款條件','訂單截止日','訂購商品','最小起訂量'],
+      english:['Buyer','Contact','Payment Terms','Order Deadline','Products','MOQ / Notes'],
+      korea:  ['구매자','담당자','결제 조건','주문 마감일','주문 상품','최소 주문 수량'],
+      thailand:['ผู้ซื้อ','ผู้ติดต่อ','เงื่อนไขการชำระ','กำหนดสั่งซื้อ','รายการสินค้า','MOQ / หมายเหตุ'],
+    };
+    const lb = labels[lang];
+    const dl = lang==='english' ? fmtDateEn(data.deadline) : fmtDate(data.deadline);
+    return `${titles[lang]}
+${'─'.repeat(40)}
+${lb[0]}　：${data.buyer || '（未入力）'}
+${lb[1]}　：${data.contact || '—'}
+${lb[2]}　：${data.payment || '—'}
+${lb[3]}　：${dl}
+${'─'.repeat(40)}
+【${lb[4]}】
+${data.products || '—'}
+${'─'.repeat(40)}
+【${lb[5]}】
+${data.moq || '—'}
+${'─'.repeat(40)}
+
+✅ CHECKLIST
+${lang==='english' ?
+`□ Confirm stock availability
+□ Verify MOQ and pricing
+□ Confirm shipment schedule
+□ Prepare Packing List & Invoice
+□ Send order confirmation email
+□ Update Kintone records` :
+lang==='china' ?
+`□ 确认库存
+□ 确认最小起订量及价格
+□ 确认出货时间
+□ 准备装箱单和发票
+□ 发送订单确认邮件
+□ 更新 Kintone 记录` :
+lang==='taiwan' ?
+`□ 確認庫存
+□ 確認最小起訂量及價格
+□ 確認出貨時間
+□ 準備裝箱單和發票
+□ 發送訂單確認郵件
+□ 更新 Kintone 記錄` :
+lang==='korea' ?
+`□ 재고 확인
+□ MOQ 및 가격 확인
+□ 출하 일정 확인
+□ 포장 명세서 및 인보이스 준비
+□ 주문 확인 이메일 발송
+□ Kintone 업데이트` :
+`□ ตรวจสอบสต๊อก
+□ ยืนยัน MOQ และราคา
+□ ยืนยันวันจัดส่ง
+□ เตรียมเอกสาร Packing List & Invoice
+□ ส่งอีเมลยืนยันคำสั่งซื้อ
+□ อัปเดต Kintone`}
+
+${'─'.repeat(40)}
+${L.company}`;
+  }
+  return null;
+}
+
+// ─── 書類生成 ───
+function generateDoc() {
+  if (!selectedDocLang) { showToast('⚠ 言語を選択してください'); return; }
+
+  let data = {};
+  if (selectedDocType === 'packing') {
+    const prods = getPkProducts();
+    if (!prods.length) { showToast('⚠ 商品を1件以上入力してください'); return; }
+    data = {
+      consignee: document.getElementById('pk-consignee').value,
+      dest:  document.getElementById('pk-dest').value,
+      bl:    document.getElementById('pk-bl').value,
+      date:  document.getElementById('pk-date').value,
+      pkProds: prods
+    };
+  } else if (selectedDocType === 'schedule') {
+    data = {
+      customer: document.getElementById('sc-customer').value,
+      contact:  document.getElementById('sc-contact').value,
+      product:  document.getElementById('sc-product').value,
+      qty:      document.getElementById('sc-qty').value,
+      shipdate: document.getElementById('sc-shipdate').value,
+      arrdate:  document.getElementById('sc-arrdate').value,
+      transport:document.getElementById('sc-transport').value,
+      note:     document.getElementById('sc-note').value,
+    };
+  } else if (selectedDocType === 'recipe') {
+    data = {
+      product: document.getElementById('rc-product').value,
+      temp:    document.getElementById('rc-temp').value,
+      expiry:  document.getElementById('rc-expiry').value,
+      caution: document.getElementById('rc-caution').value,
+      recipe:  document.getElementById('rc-recipe').value,
+      point:   document.getElementById('rc-point').value,
+    };
+  } else if (selectedDocType === 'shopping') {
+    data = {
+      buyer:    document.getElementById('sh-buyer').value,
+      contact:  document.getElementById('sh-contact').value,
+      payment:  document.getElementById('sh-payment').value,
+      deadline: document.getElementById('sh-deadline').value,
+      products: document.getElementById('sh-products').value,
+      moq:      document.getElementById('sh-moq').value,
+    };
+  }
+
+  lastDocData = { type: selectedDocType, data };
+  const text = generateDocText(selectedDocType, selectedDocLang, data);
+  if (!text) { showToast('生成できませんでした'); return; }
+
+  document.getElementById('docOutputText').textContent = text;
+  document.getElementById('docOutputLangBadge').textContent = getLangBadge(selectedDocLang);
+  document.getElementById('docOutputSection').classList.add('visible');
+  document.getElementById('btnDocCopy').textContent = 'コピーする';
+  document.getElementById('btnDocCopy').classList.remove('copied');
+
+  // 言語タブのアクティブ化
+  document.querySelectorAll('[id^="dlt-"]').forEach(t => t.classList.remove('active'));
+  const tab = document.getElementById('dlt-' + selectedDocLang);
+  if (tab) tab.classList.add('active');
+
+  setTimeout(() => {
+    document.getElementById('docOutputSection').scrollIntoView({ behavior:'smooth', block:'start' });
+  }, 100);
+}
+
+function switchDocLang(lang) {
+  if (!lastDocData) return;
+  const text = generateDocText(lastDocData.type, lang, lastDocData.data);
+  if (!text) { showToast('この言語は準備中です'); return; }
+  document.querySelectorAll('[id^="dlt-"]').forEach(t => t.classList.remove('active'));
+  document.getElementById('dlt-' + lang)?.classList.add('active');
+  document.getElementById('docOutputText').textContent = text;
+  document.getElementById('docOutputLangBadge').textContent = getLangBadge(lang);
+  document.getElementById('btnDocCopy').textContent = 'コピーする';
+  document.getElementById('btnDocCopy').classList.remove('copied');
+}
+
+function copyDocText() {
+  const text = document.getElementById('docOutputText').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('btnDocCopy');
+    btn.textContent = '✓ コピーしました！';
+    btn.classList.add('copied');
+    showToast('📋 クリップボードにコピーしました');
+    setTimeout(() => { btn.textContent = 'コピーする'; btn.classList.remove('copied'); }, 2500);
+  });
+}
+
+<script>initProductList(); initPkProducts();</script>
 </body>
 </html>
