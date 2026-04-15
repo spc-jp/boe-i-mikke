@@ -573,6 +573,119 @@ footer span { color: var(--gold-dark); }
   .demo-btns { flex-direction: column; }
   header h1 { letter-spacing: 2px; }
 }
+
+/* 商品追加ボタン */
+.btn-add-product {
+  background: none;
+  border: 1.5px solid var(--gold-dark);
+  color: var(--gold);
+  border-radius: 6px;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-family: 'Noto Sans JP', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.btn-add-product:hover { background: rgba(201,168,76,0.1); border-color: var(--gold); }
+.btn-add-product:disabled { opacity: 0.35; cursor: not-allowed; }
+
+/* 商品行 */
+.product-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  background: var(--dark2);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  transition: border-color 0.2s;
+}
+.product-row:focus-within { border-color: var(--gold); }
+.product-num {
+  width: 22px; height: 22px;
+  background: var(--gold-dark);
+  color: #0D0D0D;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  font-family: 'EB Garamond', serif;
+}
+.product-input {
+  flex: 2;
+  background: transparent;
+  border: none;
+  border-right: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 13px;
+  padding: 4px 10px 4px 0;
+  outline: none;
+}
+.qty-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 13px;
+  padding: 4px 8px;
+  outline: none;
+  min-width: 80px;
+}
+.product-input::placeholder, .qty-input::placeholder { color: #666; }
+body.light .product-input::placeholder, body.light .qty-input::placeholder { color: #aaa; }
+.btn-remove-row {
+  background: none;
+  border: none;
+  color: #555;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: color 0.2s;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.btn-remove-row:hover { color: #e05; }
+
+/* カレンダー・Gcal */
+input[type="date"].field-input {
+  color-scheme: dark;
+}
+body.light input[type="date"].field-input {
+  color-scheme: light;
+}
+.gcal-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-muted);
+  background: var(--dark2);
+  border: 1.5px dashed var(--border);
+  border-radius: 7px;
+  padding: 8px 12px;
+  white-space: nowrap;
+}
+.badge-tag {
+  background: rgba(201,168,76,0.15);
+  color: var(--gold-dark);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+.calendar-hint {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 6px;
+}
+
 </style>
 </head>
 <body>
@@ -787,24 +900,34 @@ footer span { color: var(--gold-dark); }
   <div class="step-label">STEP 3 &nbsp; 情報を入力してください</div>
   <div class="section">
     <div class="input-group">
+      <!-- 担当者名 -->
       <div class="field-wrap">
         <div class="field-label">取引先担当者名<span>例：王様、Park様、Mr.Smith</span></div>
         <input class="field-input" id="contactName" type="text" placeholder="担当者名を入力">
       </div>
+
+      <!-- 商品リスト -->
       <div class="field-wrap">
-        <div class="field-label">商品名<span>例：AHMAD TEA アールグレイ 100TB</span></div>
-        <input class="field-input" id="productName" type="text" placeholder="商品名を入力">
-      </div>
-      <div class="input-row">
-        <div class="field-wrap">
-          <div class="field-label">在庫数量<span>例：500ケース</span></div>
-          <input class="field-input" id="stockQty" type="text" placeholder="数量・単位を入力">
+        <div class="field-label" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;">
+          <span>商品リスト<span style="color:var(--gold-dark);margin-left:4px;font-size:10px;">最大10件まで追加できます</span></span>
+          <button class="btn-add-product" onclick="addProductRow()" id="btnAddProduct">＋ 商品を追加</button>
         </div>
-        <div class="field-wrap">
-          <div class="field-label">出荷可能日<span>例：2025年5月15日</span></div>
-          <input class="field-input" id="shipDate" type="text" placeholder="出荷可能日を入力">
-        </div>
+        <div id="productList"></div>
       </div>
+
+      <!-- 出荷可能日 -->
+      <div class="field-wrap">
+        <div class="field-label">出荷可能日<span>カレンダーから選択できます</span></div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+          <input class="field-input" id="shipDate" type="date" style="flex:1;min-width:160px;">
+          <div class="gcal-badge" title="フェーズ2でGoogleカレンダー・キントーン連携予定">
+            📅 Googleカレンダー連携<span class="badge-tag">準備中</span>
+          </div>
+        </div>
+        <div class="calendar-hint">📌 選択した日付はメール文に自動で反映されます</div>
+      </div>
+
+      <!-- 追加メッセージ -->
       <div class="field-wrap">
         <div class="field-label">追加メッセージ（任意）<span>ひとこと加えたい場合</span></div>
         <input class="field-input" id="extraMsg" type="text" placeholder="例：早めのご注文をお勧めします">
@@ -889,15 +1012,82 @@ function toggleSignature() {
   document.getElementById('signatureArea').classList.toggle('open');
 }
 
+// 商品行管理
+let productRowCount = 0;
+const MAX_PRODUCTS = 10;
+
+function initProductList() {
+  addProductRow(); // 最初の1行
+}
+
+function addProductRow() {
+  if (productRowCount >= MAX_PRODUCTS) {
+    showToast('⚠ 商品は最大10件までです');
+    return;
+  }
+  productRowCount++;
+  const list = document.getElementById('productList');
+  const row = document.createElement('div');
+  row.className = 'product-row';
+  row.id = 'pr-' + productRowCount;
+  row.innerHTML = `
+    <div class="product-num">${productRowCount}</div>
+    <input class="product-input" type="text" placeholder="商品名を入力（例：AHMAD TEA アールグレイ 100TB）" data-field="name">
+    <input class="qty-input" type="text" placeholder="数量（例：300ケース）" data-field="qty">
+    ${productRowCount > 1 ? `<button class="btn-remove-row" onclick="removeProductRow('pr-${productRowCount}')" title="削除">✕</button>` : '<div style="width:24px"></div>'}
+  `;
+  list.appendChild(row);
+  if (productRowCount >= MAX_PRODUCTS) {
+    document.getElementById('btnAddProduct').disabled = true;
+  }
+}
+
+function removeProductRow(id) {
+  const row = document.getElementById(id);
+  if (row) row.remove();
+  productRowCount--;
+  // 番号振り直し
+  document.querySelectorAll('.product-row').forEach((r, i) => {
+    r.querySelector('.product-num').textContent = i + 1;
+  });
+  document.getElementById('btnAddProduct').disabled = false;
+}
+
+function getProducts() {
+  const rows = document.querySelectorAll('.product-row');
+  const items = [];
+  rows.forEach(row => {
+    const name = row.querySelector('[data-field="name"]').value.trim();
+    const qty = row.querySelector('[data-field="qty"]').value.trim();
+    if (name) items.push({ name, qty: qty || '数量未入力' });
+  });
+  return items;
+}
+
+function formatDateJP(dateStr) {
+  if (!dateStr) return '（出荷日未入力）';
+  const d = new Date(dateStr);
+  return `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;
+}
+
 // デモデータ
 function loadDemo() {
   selectCountry('china', document.getElementById('sel-china'));
   selectScene('shipment', document.getElementById('scene-shipment'));
   document.getElementById('contactName').value = '王 大明';
-  document.getElementById('productName').value = 'AHMAD TEA アールグレイ 100TB';
-  document.getElementById('stockQty').value = '300ケース';
-  document.getElementById('shipDate').value = '2025年5月20日';
+  document.getElementById('shipDate').value = '2025-05-20';
   document.getElementById('extraMsg').value = '早めのご注文をお勧めいたします';
+  // 商品リストをリセットしてデモデータ投入
+  document.getElementById('productList').innerHTML = '';
+  productRowCount = 0;
+  document.getElementById('btnAddProduct').disabled = false;
+  addProductRow();
+  addProductRow();
+  const rows = document.querySelectorAll('.product-row');
+  rows[0].querySelector('[data-field="name"]').value = 'AHMAD TEA アールグレイ 100TB';
+  rows[0].querySelector('[data-field="qty"]').value = '300ケース';
+  rows[1].querySelector('[data-field="name"]').value = 'Manuka Health MGO 250+ 250g';
+  rows[1].querySelector('[data-field="qty"]').value = '150ケース';
   closeModal('settingsOverlay');
   showToast('✓ デモデータを入力しました');
 }
@@ -907,9 +1097,13 @@ function clearDemo() {
   document.querySelectorAll('.btn-scene').forEach(b => b.classList.remove('active'));
   selectedCountry = '';
   selectedScene = '';
-  ['contactName','productName','stockQty','shipDate','extraMsg','sigName','sigDept','sigEmail'].forEach(id => {
+  ['contactName','shipDate','extraMsg','sigName','sigDept','sigEmail'].forEach(id => {
     document.getElementById(id).value = '';
   });
+  document.getElementById('productList').innerHTML = '';
+  productRowCount = 0;
+  document.getElementById('btnAddProduct').disabled = false;
+  addProductRow();
   document.getElementById('outputSection').classList.remove('visible');
   closeModal('settingsOverlay');
   showToast('✓ クリアしました');
@@ -925,29 +1119,41 @@ function showToast(msg) {
 
 // メール生成
 function generateEmail(country, scene, data) {
-  const { name, product, qty, date, extra, sigName, sigDept, sigEmail } = data;
+  const { name, products, date, extra, sigName, sigDept, sigEmail } = data;
   const sig = buildSignature(country, sigName, sigDept, sigEmail);
 
+  // 商品リストを各言語フォーマットで組み立て
+  function buildProductList(labelName, labelQty) {
+    return products.map((p, i) =>
+      `　${i+1}. ${labelName}：${p.name}　${labelQty}：${p.qty}`
+    ).join('\n');
+  }
+  const pl_cn = buildProductList('商品名称','数量');
+  const pl_tw = buildProductList('商品名稱','數量');
+  const pl_en = products.map((p,i) => `   ${i+1}. ${p.name}  (Qty: ${p.qty})`).join('\n');
+  const pl_kr = buildProductList('상품명','수량');
+  const pl_th = buildProductList('ชื่อสินค้า','จำนวน');
+
   const t = {
-    china_stock: `尊敬的 ${name} 先生/女士，\n\n您好！感谢您一直以来对富永贸易的支持与厚爱。\n\n现向您汇报以下商品的最新库存情况，请知悉：\n\n【商品名称】${product}\n【当前库存】${qty}\n\n${extra ? '备注：' + extra + '\n\n' : ''}如您有订购意向，请尽早与我们联系，以便我们为您优先安排。\n\n如有任何疑问，欢迎随时与我们沟通，期待您的回复。\n\n${sig || '富永贸易株式会社\n贸易部'}`,
+    china_stock: `尊敬的 ${name} 先生/女士，\n\n您好！感谢您一直以来对富永贸易的支持与厚爱。\n\n现向您汇报以下商品的最新库存情况，请知悉：\n\n${pl_cn}\n\n${extra ? '备注：' + extra + '\n\n' : ''}如您有订购意向，请尽早与我们联系，以便我们为您优先安排。\n\n如有任何疑问，欢迎随时与我们沟通，期待您的回复。\n\n${sig || '富永贸易株式会社\n贸易部'}`,
 
-    taiwan_stock: `尊敬的 ${name} 先生/女士，\n\n您好！感謝您一直以來對富永貿易的支持與厚愛。\n\n現向您彙報以下商品的最新庫存情況，請知悉：\n\n【商品名稱】${product}\n【目前庫存】${qty}\n\n${extra ? '備註：' + extra + '\n\n' : ''}如您有訂購意向，請盡早與我們聯繫，以便我們為您優先安排。\n\n如有任何疑問，歡迎隨時與我們溝通，期待您的回覆。\n\n${sig || '富永貿易株式会社\n貿易部'}`,
+    taiwan_stock: `尊敬的 ${name} 先生/女士，\n\n您好！感謝您一直以來對富永貿易的支持與厚愛。\n\n現向您彙報以下商品的最新庫存情況，請知悉：\n\n${pl_tw}\n\n${extra ? '備註：' + extra + '\n\n' : ''}如您有訂購意向，請盡早與我們聯繫，以便我們為您優先安排。\n\n如有任何疑問，歡迎隨時與我們溝通，期待您的回覆。\n\n${sig || '富永貿易株式会社\n貿易部'}`,
 
-    english_stock: `Dear ${name},\n\nThank you for your continued support and partnership with Tominaga Boeki.\n\nWe would like to inform you of the current stock availability for the following item:\n\n[Product] ${product}\n[Current Stock] ${qty}\n\n${extra ? extra + '\n\n' : ''}Should you wish to place an order, please do not hesitate to contact us at your earliest convenience.\n\nWe look forward to hearing from you.\n\n${sig || 'Tominaga Boeki Co., Ltd.\nInternational Trade Division'}`,
+    english_stock: `Dear ${name},\n\nThank you for your continued support and partnership with Tominaga Boeki.\n\nWe would like to inform you of the current stock availability for the following items:\n\n${pl_en}\n\n${extra ? extra + '\n\n' : ''}Should you wish to place an order, please do not hesitate to contact us at your earliest convenience.\n\nWe look forward to hearing from you.\n\n${sig || 'Tominaga Boeki Co., Ltd.\nInternational Trade Division'}`,
 
-    korea_stock: `안녕하세요, ${name} 님.\n\n항상 도미나가 보에키를 이용해 주셔서 감사합니다.\n\n아래 상품의 최신 재고 현황을 알려드립니다.\n\n【상품명】${product}\n【현재 재고】${qty}\n\n${extra ? '비고：' + extra + '\n\n' : ''}주문을 원하시면 빠른 시일 내에 연락 주시기 바랍니다.\n\n궁금하신 점이 있으시면 언제든지 연락해 주십시오.\n\n${sig || '도미나가 보에키 주식회사\n무역부'}`,
+    korea_stock: `안녕하세요, ${name} 님.\n\n항상 도미나가 보에키를 이용해 주셔서 감사합니다.\n\n아래 상품의 최신 재고 현황을 알려드립니다.\n\n${pl_kr}\n\n${extra ? '비고：' + extra + '\n\n' : ''}주문을 원하시면 빠른 시일 내에 연락 주시기 바랍니다.\n\n궁금하신 점이 있으시면 언제든지 연락해 주십시오.\n\n${sig || '도미나가 보에키 주식회사\n무역부'}`,
 
-    thailand_stock: `เรียน คุณ ${name},\n\nขอบคุณที่ไว้วางใจและให้การสนับสนุน Tominaga Boeki มาโดยตลอด\n\nขอแจ้งสถานะสต๊อกสินค้าล่าสุดดังนี้:\n\n【ชื่อสินค้า】${product}\n【สต๊อกคงเหลือ】${qty}\n\n${extra ? 'หมายเหตุ: ' + extra + '\n\n' : ''}หากต้องการสั่งซื้อ กรุณาติดต่อเราโดยเร็วที่สุด\n\n${sig || 'บริษัท โทมินากะ โบเอกิ จำกัด\nฝ่ายการค้าระหว่างประเทศ'}`,
+    thailand_stock: `เรียน คุณ ${name},\n\nขอบคุณที่ไว้วางใจและให้การสนับสนุน Tominaga Boeki มาโดยตลอด\n\nขอแจ้งสถานะสต๊อกสินค้าล่าสุดดังนี้:\n\n${pl_th}\n\n${extra ? 'หมายเหตุ: ' + extra + '\n\n' : ''}หากต้องการสั่งซื้อ กรุณาติดต่อเราโดยเร็วที่สุด\n\n${sig || 'บริษัท โทมินากะ โบเอกิ จำกัด\nฝ่ายการค้าระหว่างประเทศ'}`,
 
-    china_shipment: `尊敬的 ${name} 先生/女士，\n\n您好！感谢您对富永贸易的支持。\n\n现向您通知以下商品的出货安排，请知悉：\n\n【商品名称】${product}\n【库存数量】${qty}\n【预计出货日期】${date}\n\n${extra ? '备注：' + extra + '\n\n' : ''}我们将按照预定时间为您安排发货，如有任何变更，我们会及时通知您。\n\n如有任何问题，请随时与我们联系。感谢您的理解与配合。\n\n${sig || '富永贸易株式会社\n贸易部'}`,
+    china_shipment: `尊敬的 ${name} 先生/女士，\n\n您好！感谢您对富永贸易的支持。\n\n现向您通知以下商品的出货安排，请知悉：\n\n${pl_cn}\n【预计出货日期】${date}\n\n${extra ? '备注：' + extra + '\n\n' : ''}我们将按照预定时间为您安排发货，如有任何变更，我们会及时通知您。\n\n如有任何问题，请随时与我们联系。感谢您的理解与配合。\n\n${sig || '富永贸易株式会社\n贸易部'}`,
 
-    taiwan_shipment: `尊敬的 ${name} 先生/女士，\n\n您好！感謝您對富永貿易的支持。\n\n現向您通知以下商品的出貨安排，請知悉：\n\n【商品名稱】${product}\n【庫存數量】${qty}\n【預計出貨日期】${date}\n\n${extra ? '備註：' + extra + '\n\n' : ''}我們將按照預定時間為您安排出貨，如有任何變更，我們會及時通知您。\n\n如有任何問題，請隨時與我們聯繫，感謝您的理解與配合。\n\n${sig || '富永貿易株式会社\n貿易部'}`,
+    taiwan_shipment: `尊敬的 ${name} 先生/女士，\n\n您好！感謝您對富永貿易的支持。\n\n現向您通知以下商品的出貨安排，請知悉：\n\n${pl_tw}\n【預計出貨日期】${date}\n\n${extra ? '備註：' + extra + '\n\n' : ''}我們將按照預定時間為您安排出貨，如有任何變更，我們會及時通知您。\n\n如有任何問題，請隨時與我們聯繫，感謝您的理解與配合。\n\n${sig || '富永貿易株式会社\n貿易部'}`,
 
-    english_shipment: `Dear ${name},\n\nThank you for your order and continued business with Tominaga Boeki.\n\nWe are pleased to confirm the shipment details for the following product:\n\n[Product] ${product}\n[Quantity] ${qty}\n[Estimated Shipment Date] ${date}\n\n${extra ? extra + '\n\n' : ''}We will proceed with the shipment as scheduled. Should there be any changes, we will notify you promptly.\n\nThank you for your understanding and cooperation.\n\n${sig || 'Tominaga Boeki Co., Ltd.\nInternational Trade Division'}`,
+    english_shipment: `Dear ${name},\n\nThank you for your order and continued business with Tominaga Boeki.\n\nWe are pleased to confirm the shipment details for the following products:\n\n${pl_en}\n   Estimated Shipment Date: ${date}\n\n${extra ? extra + '\n\n' : ''}We will proceed with the shipment as scheduled. Should there be any changes, we will notify you promptly.\n\nThank you for your understanding and cooperation.\n\n${sig || 'Tominaga Boeki Co., Ltd.\nInternational Trade Division'}`,
 
-    korea_shipment: `안녕하세요, ${name} 님.\n\n항상 도미나가 보에키를 이용해 주셔서 감사합니다.\n\n아래 상품의 출하 일정을 안내해 드립니다.\n\n【상품명】${product}\n【수량】${qty}\n【출하 예정일】${date}\n\n${extra ? '비고：' + extra + '\n\n' : ''}예정대로 출하를 진행할 예정입니다. 변경 사항이 있을 경우에는 즉시 연락드리겠습니다.\n\n${sig || '도미나가 보에키 주식회사\n무역부'}`,
+    korea_shipment: `안녕하세요, ${name} 님.\n\n항상 도미나가 보에키를 이용해 주셔서 감사합니다.\n\n아래 상품의 출하 일정을 안내해 드립니다.\n\n${pl_kr}\n【출하 예정일】${date}\n\n${extra ? '비고：' + extra + '\n\n' : ''}예정대로 출하를 진행할 예정입니다. 변경 사항이 있을 경우에는 즉시 연락드리겠습니다.\n\n${sig || '도미나가 보에키 주식회사\n무역부'}`,
 
-    thailand_shipment: `เรียน คุณ ${name},\n\nขอบคุณที่สั่งซื้อสินค้าและให้การสนับสนุน Tominaga Boeki มาโดยตลอด\n\nขอแจ้งกำหนดการจัดส่งสินค้าดังต่อไปนี้:\n\n【ชื่อสินค้า】${product}\n【จำนวน】${qty}\n【วันที่คาดว่าจะจัดส่ง】${date}\n\n${extra ? 'หมายเหตุ: ' + extra + '\n\n' : ''}เราจะดำเนินการจัดส่งตามกำหนด หากมีการเปลี่ยนแปลงใดๆ เราจะแจ้งให้ทราบทันที\n\n${sig || 'บริษัท โทมินากะ โบเอกิ จำกัด\nฝ่ายการค้าระหว่างประเทศ'}`
+    thailand_shipment: `เรียน คุณ ${name},\n\nขอบคุณที่สั่งซื้อสินค้าและให้การสนับสนุน Tominaga Boeki มาโดยตลอด\n\nขอแจ้งกำหนดการจัดส่งสินค้าดังต่อไปนี้:\n\n${pl_th}\n【วันที่คาดว่าจะจัดส่ง】${date}\n\n${extra ? 'หมายเหตุ: ' + extra + '\n\n' : ''}เราจะดำเนินการจัดส่งตามกำหนด หากมีการเปลี่ยนแปลงใดๆ เราจะแจ้งให้ทราบทันที\n\n${sig || 'บริษัท โทมินากะ โบเอกิ จำกัด\nฝ่ายการค้าระหว่างประเทศ'}`
   };
 
   return t[`${country}_${scene}`] || null;
@@ -982,11 +1188,16 @@ function generate() {
   if (!selectedCountry) { showToast('⚠ 国を選択してください'); return; }
   if (!selectedScene) { showToast('⚠ メールの種類を選択してください'); return; }
 
+  const products = getProducts();
+  if (products.length === 0) { showToast('⚠ 商品を1件以上入力してください'); return; }
+
   const data = {
     name: document.getElementById('contactName').value || '担当者',
-    product: document.getElementById('productName').value || '（商品名未入力）',
-    qty: document.getElementById('stockQty').value || '（数量未入力）',
-    date: document.getElementById('shipDate').value || '（出荷日未入力）',
+    products: products,
+    // 後方互換のため先頭商品をproduct/qtyとして保持
+    product: products[0].name,
+    qty: products[0].qty,
+    date: formatDateJP(document.getElementById('shipDate').value),
     extra: document.getElementById('extraMsg').value,
     sigName: document.getElementById('sigName').value,
     sigDept: document.getElementById('sigDept').value,
@@ -1018,5 +1229,6 @@ function copyText() {
   });
 }
 </script>
+<script>initProductList();</script>
 </body>
 </html>
