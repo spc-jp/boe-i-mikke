@@ -580,14 +580,6 @@ footer span { color: var(--gold-dark); }
 <!-- ───── ヘッダー ───── -->
 <header>
   <div class="header-inner">
-    <!-- 使い方ボタン -->
-    <div class="header-btns">
-      <button class="hdr-btn" onclick="openModal('howtoOverlay')" title="使い方">
-        <span>📖</span>
-        <span class="btn-label">使い方</span>
-      </button>
-    </div>
-
     <!-- 中央タイトル -->
     <div class="header-center">
       <div class="header-badge">TOMINAGA BOEKI — TRADE ASSIST</div>
@@ -595,8 +587,12 @@ footer span { color: var(--gold-dark); }
       <p>多言語ビジネスメール自動生成システム</p>
     </div>
 
-    <!-- 設定ボタン -->
+    <!-- 使い方・設定ボタン（右側にまとめて配置） -->
     <div class="header-btns">
+      <button class="hdr-btn" onclick="openModal('howtoOverlay')" title="使い方">
+        <span>📖</span>
+        <span class="btn-label">使い方</span>
+      </button>
       <button class="hdr-btn" onclick="openModal('settingsOverlay')" title="設定">
         <span>⚙️</span>
         <span class="btn-label">設定</span>
